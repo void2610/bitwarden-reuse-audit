@@ -1,0 +1,11 @@
+{
+  "name": "bitwarden-reuse-audit",
+  "private": true,
+  "description": "Bitwarden の使い回しパスワードを棚卸しし、平文を介さずに変更する道具",
+  "scripts": {
+    "rotator": "node rotator.mjs"
+  },
+  "dependencies": {
+    "playwright-core": "1.56.1"
+  }
+}
