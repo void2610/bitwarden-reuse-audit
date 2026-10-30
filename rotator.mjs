@@ -4,6 +4,7 @@ import net from "node:net";
 import fs from "node:fs";
 import path from "node:path";
 import os from "node:os";
+import readline from "node:readline";
 import { chromium } from "playwright-core";
 
 const DIR = process.env.ROT_STATE_DIR || path.join(path.dirname(new URL(import.meta.url).pathname), ".state");
@@ -19,6 +20,19 @@ const pending = new Map();
 
 function log(msg) {
   fs.appendFileSync(LOG, `${new Date().toISOString()} ${msg}\n`);
+}
+
+// 認証コード等は起動した端末で本人が直接入力し、命令を送る側には返さない
+function promptTTY(question, hidden) {
+  return new Promise((resolve) => {
+    const rl = readline.createInterface({ input: process.stdin, output: process.stdout, terminal: true });
+    if (hidden) rl._writeToOutput = (s) => s.includes(question) && rl.output.write(s);
+    rl.question(`\x07${question}`, (answer) => {
+      rl.close();
+      if (hidden) process.stdout.write("\n");
+      resolve(answer.trim());
+    });
+  });
 }
 
 function bw(args, { input, interactive = false } = {}) {
@@ -212,6 +226,28 @@ const handlers = {
   async wait({ ms }) {
     await page.waitForTimeout(ms ?? 2000);
     return { url: page.url(), title: await page.title() };
+  },
+  async ask({ ref, prompt, hidden = true }) {
+    const value = await promptTTY(`${prompt}: `, hidden);
+    if (!value) throw new Error("empty answer");
+    await locator(ref).fill(value);
+    return { ok: true };
+  },
+  // 規約への同意など本人の判断が要る操作は、端末で yes と答えたときだけ押す
+  async confirm({ ref, prompt }) {
+    const answer = await promptTTY(`${prompt} (yes/no): `, false);
+    if (answer !== "yes") return { ok: false, declined: true };
+    await locator(ref).click({ timeout: 15000 });
+    await page.waitForTimeout(1500);
+    return { ok: true, title: await page.title() };
+  },
+  // 再設定リンクはトークンを含むので、開いた先の URL は返さない
+  async askurl({ prompt }) {
+    const url = await promptTTY(`${prompt}: `, true);
+    if (!/^https:\/\//.test(url)) throw new Error("not an https url");
+    await page.goto(url, { waitUntil: "domcontentloaded", timeout: 45000 });
+    await page.waitForTimeout(1500);
+    return { ok: true, title: await page.title() };
   },
   async info({ item }) {
     const it = findItem(item);

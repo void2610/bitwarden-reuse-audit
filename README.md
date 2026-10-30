@@ -95,6 +95,9 @@ node rotator.mjs
 | `commit` | `{"cmd":"commit","item":"a95ebfba"}` | 保留中の新しいパスワードを保管庫に保存する |
 | `revert` | `{"cmd":"revert","item":"a95ebfba"}` | 直前のパスワードに戻す |
 | `press` / `wait` / `shot` / `info` | | キー入力・待機・スクリーンショット・アイテムの名前と URI |
+| `ask` | `{"cmd":"ask","ref":"f0e3","prompt":"楽天のメールの認証コード"}` | 起動した端末で本人が入力した値を欄に入れる (値は返さない) |
+| `confirm` | `{"cmd":"confirm","ref":"f0e4","prompt":"規約の改正に同意しますか"}` | 端末で `yes` と答えたときだけ押す |
+| `askurl` | `{"cmd":"askurl","prompt":"再設定メールのリンク"}` | 端末で入力された URL を開く (開いた先の URL は返さない) |
 
 新しいパスワードは、サイトに送信する前に `commit` で保管庫へ保存します。
 旧パスワードはアイテムのパスワード履歴に残すので、サイト側の変更が失敗しても `revert` で戻せます。
