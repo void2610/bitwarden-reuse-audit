@@ -31,7 +31,7 @@ nix shell nixpkgs#bitwarden-cli -c python3 -I bw_reuse_audit.py ~/report.json
 
 1. `bw unlock` で金庫を開き、`bw sync` で最新の状態にする
 2. `bw list items` の結果をメモリ上でパスワードごとにまとめる
-3. 2 件以上が同じパスワードのグループだけを書き出す
+3. 2 件以上が同じパスワードのグループだけを、所有者だけが読める権限 (600) のファイルに書き出す
 4. 最後に必ず `bw lock` する
 
 セッションキーは `ps` から見えないよう、引数ではなく環境変数 `BW_SESSION` で `bw` に渡します。
@@ -55,6 +55,12 @@ nix shell nixpkgs#bitwarden-cli -c python3 -I bw_reuse_audit.py ~/report.json
 ```
 
 同じサイトの重複登録と、別のサイト間の使い回しは区別せずに出力します。
+
+## テスト
+
+```sh
+python3 -I -m unittest discover -s tests
+```
 
 ## パスワードの変更 (rotator)
 

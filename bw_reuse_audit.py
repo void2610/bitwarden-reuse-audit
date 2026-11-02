@@ -31,6 +31,13 @@ def host_of(uri):
     return host
 
 
+def write_report(path, report):
+    # アイテム名とホスト名を含むので、umask や既存ファイルの権限によらず所有者だけに読ませる
+    with open(path, "w", encoding="utf-8", opener=lambda p, flags: os.open(p, flags, 0o600)) as f:
+        os.fchmod(f.fileno(), 0o600)
+        json.dump(report, f, ensure_ascii=False, indent=1)
+
+
 def main():
     if len(sys.argv) != 2:
         sys.exit("使い方: bw_reuse_audit.py <出力 JSON のパス>")
@@ -76,8 +83,7 @@ def main():
         "login_items": login_count,
         "reused_groups": [{"group": i, "items": members} for i, members in enumerate(reused, 1)],
     }
-    with open(out_path, "w", encoding="utf-8") as f:
-        json.dump(report, f, ensure_ascii=False, indent=1)
+    write_report(out_path, report)
     print(f"ログイン {login_count} 件中、使い回しグループ {len(reused)} 組を {out_path} に書き出しました")
 
 
