@@ -102,6 +102,8 @@ async function snapshot() {
       list = await frame.evaluate((fi) => {
         const out = [];
         let n = 0;
+        // 前回振った番号が非表示になった要素に残ると、今回の番号と重なる
+        for (const el of document.querySelectorAll("[data-rot]")) el.removeAttribute("data-rot");
         const vis = (el) => {
           const r = el.getBoundingClientRect();
           const s = getComputedStyle(el);
