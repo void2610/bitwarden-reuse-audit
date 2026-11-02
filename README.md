@@ -85,6 +85,7 @@ node rotator.mjs
 | `CHROME_PATH` | Playwright の Chromium | 使うブラウザの実行ファイル |
 | `ROT_SOCK` | `$TMPDIR/bw-rotator.sock` | 命令を受けるソケット |
 | `ROT_STATE_DIR` | `./.state` | ブラウザのプロファイルとログ |
+| `ROT_HEADED` | 未設定 | `1` でブラウザを画面に出す (ロボット確認を本人が解くとき) |
 
 ### 命令
 

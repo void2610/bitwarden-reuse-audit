@@ -10,6 +10,8 @@ import { chromium } from "playwright-core";
 const DIR = process.env.ROT_STATE_DIR || path.join(path.dirname(new URL(import.meta.url).pathname), ".state");
 const BW = process.env.BW_BIN || "bw";
 const CHROME = process.env.CHROME_PATH || undefined;
+// 画面に出せば、ロボット確認や画像認証を本人がそのウィンドウで解ける
+const HEADED = process.env.ROT_HEADED === "1";
 // macOS の Unix ソケットはパス長が 104 文字までなので短い一時ディレクトリに置く
 const SOCK = process.env.ROT_SOCK || path.join(os.tmpdir(), "bw-rotator.sock");
 const LOG = path.join(DIR, "rotator.log");
@@ -79,7 +81,7 @@ let page;
 async function startBrowser() {
   context = await chromium.launchPersistentContext(path.join(DIR, "profile"), {
     executablePath: CHROME,
-    headless: true,
+    headless: !HEADED,
     locale: "ja-JP",
     viewport: { width: 1280, height: 900 },
     userAgent:
