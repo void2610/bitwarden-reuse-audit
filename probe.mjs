@@ -28,6 +28,8 @@ async function snap() {
 }
 
 async function probe(item, url) {
+  // 前のサイトの遅れて届くリダイレクトが次の goto を中断させるので、一度空のページで断ち切る
+  await call({ cmd: "goto", url: "about:blank" });
   const g = await call({ cmd: "goto", url });
   if (!g.ok) return `goto failed: ${g.error.slice(0, 120)}`;
   await call({ cmd: "wait", ms: 2500 });
