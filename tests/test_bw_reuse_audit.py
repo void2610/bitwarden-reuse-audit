@@ -36,5 +36,14 @@ class WriteReportTest(unittest.TestCase):
             self.assertEqual(json.load(f), {"reused_groups": []})
 
 
+class HostOfTest(unittest.TestCase):
+    def test_strips_invisible_format_chars(self):
+        self.assertEqual(bw_reuse_audit.host_of("\u200ekemono.party"), "kemono.party")
+        self.assertEqual(bw_reuse_audit.host_of("https://www.\u200bexample.com/login"), "example.com")
+
+    def test_uri_of_only_invisible_chars_has_no_host(self):
+        self.assertIsNone(bw_reuse_audit.host_of("\u200e"))
+
+
 if __name__ == "__main__":
     unittest.main()

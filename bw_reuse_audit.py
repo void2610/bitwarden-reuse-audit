@@ -4,6 +4,7 @@ import json
 import os
 import subprocess
 import sys
+import unicodedata
 from collections import defaultdict
 from datetime import datetime, timezone
 from urllib.parse import urlsplit
@@ -23,6 +24,8 @@ def bw(args, session=None):
 
 
 def host_of(uri):
+    # コピーした URI に紛れる U+200E 等の見えない書式制御文字を除く
+    uri = "".join(c for c in uri or "" if unicodedata.category(c) != "Cf").strip()
     if not uri:
         return None
     host = urlsplit(uri if "://" in uri else f"https://{uri}").hostname
