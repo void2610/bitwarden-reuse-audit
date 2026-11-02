@@ -101,9 +101,8 @@ async function snapshot() {
     try {
       list = await frame.evaluate((fi) => {
         const out = [];
-        let n = 0;
-        // 前回振った番号が非表示になった要素に残ると、今回の番号と重なる
-        for (const el of document.querySelectorAll("[data-rot]")) el.removeAttribute("data-rot");
+        // 番号は要素ごとに一度だけ振る。読み直しで振り直すと、途中で現れた要素の分だけ番号がずれる
+        let n = window.__rotNext || 0;
         const vis = (el) => {
           const r = el.getBoundingClientRect();
           const s = getComputedStyle(el);
@@ -114,7 +113,7 @@ async function snapshot() {
           const tag = el.tagName.toLowerCase();
           const type = (el.getAttribute("type") || "").toLowerCase();
           if (tag === "input" && ["hidden"].includes(type)) continue;
-          const ref = `f${fi}e${n++}`;
+          const ref = el.getAttribute("data-rot") || `f${fi}e${n++}`;
           el.setAttribute("data-rot", ref);
           const label =
             el.getAttribute("aria-label") ||
@@ -136,6 +135,7 @@ async function snapshot() {
             filled: tag === "input" || tag === "textarea" ? el.value.length > 0 : undefined,
           });
         }
+        window.__rotNext = n;
         return out;
       }, fi);
     } catch {
