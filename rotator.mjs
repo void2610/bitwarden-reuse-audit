@@ -165,9 +165,16 @@ const handlers = {
     return { url: page.url(), title: await page.title() };
   },
   snap: snapshot,
-  async click({ ref }) {
-    await locator(ref).click({ timeout: 15000 });
-    await page.waitForTimeout(1500);
+  // ブラウザの確認ダイアログは既定で閉じられるので、承諾は命令で明示したときの 1 回だけにする
+  async click({ ref, dialog }) {
+    const accept = (d) => d.accept();
+    if (dialog === "accept") page.once("dialog", accept);
+    try {
+      await locator(ref).click({ timeout: 15000 });
+      await page.waitForTimeout(1500);
+    } finally {
+      page.off("dialog", accept);
+    }
     return { url: page.url(), title: await page.title() };
   },
   async fill({ ref, text }) {
