@@ -222,7 +222,8 @@ const handlers = {
   },
   async shot() {
     const p = path.join(DIR, "shot.png");
-    await page.screenshot({ path: p });
+    // 「表示」に切り替わったパスワード欄や入力済みの値が画像に写らないよう、入力欄はすべて塗りつぶす
+    await page.screenshot({ path: p, mask: [page.locator("input, textarea, select")] });
     return { path: p };
   },
   async wait({ ms }) {
