@@ -108,7 +108,7 @@ async function snapshot() {
           const s = getComputedStyle(el);
           return r.width > 0 && r.height > 0 && s.visibility !== "hidden" && s.display !== "none";
         };
-        for (const el of document.querySelectorAll("input, button, a, select, textarea, [role=button]")) {
+        for (const el of document.querySelectorAll("input, button, a, select, textarea, summary, [role=button]")) {
           if (!vis(el)) continue;
           const tag = el.tagName.toLowerCase();
           const type = (el.getAttribute("type") || "").toLowerCase();
