@@ -9,6 +9,8 @@ let buf = "";
 conn.on("data", (d) => (buf += d));
 conn.on("end", () => {
   const res = JSON.parse(buf);
+  // 失敗を終了コードで返し、&& でつないだ後続 (commit 等) を止める
+  if (!res.ok) process.exitCode = 1;
   if (res.ok && res.result?.elements) {
     const { url, title, text, elements } = res.result;
     console.log(`URL: ${url}\nTITLE: ${title}\n--- text ---\n${text}\n--- elements ---`);
@@ -22,4 +24,7 @@ conn.on("end", () => {
     console.log(JSON.stringify(res));
   }
 });
-conn.on("error", (e) => console.log(JSON.stringify({ ok: false, error: e.message })));
+conn.on("error", (e) => {
+  console.log(JSON.stringify({ ok: false, error: e.message }));
+  process.exitCode = 1;
+});
