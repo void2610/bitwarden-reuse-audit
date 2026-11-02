@@ -266,6 +266,8 @@ async function main() {
   await startBrowser();
   const server = net.createServer((conn) => {
     let buf = "";
+    // 命令の途中で送り手が切れても、応答の書き込み失敗で常駐プロセスごと落とさない
+    conn.on("error", () => {});
     conn.on("data", async (d) => {
       buf += d;
       if (!buf.endsWith("\n")) return;
