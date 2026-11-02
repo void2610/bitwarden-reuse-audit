@@ -291,5 +291,9 @@ async function main() {
 
 main().catch((e) => {
   console.error(e.message);
+  // 金庫を開いた後にブラウザの起動等で落ちても、開いたまま残さない
+  try {
+    bw(["lock"]);
+  } catch {}
   process.exit(1);
 });
