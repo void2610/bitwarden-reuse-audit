@@ -50,6 +50,12 @@ function bw(args, { input, interactive = false } = {}) {
   return r.stdout;
 }
 
+// 再設定リンク等のトークンはクエリやフラグメントに入るので、応答には URL の場所だけを返す
+function safeUrl() {
+  const u = new URL(page.url());
+  return u.origin === "null" ? `${u.protocol}${u.pathname}` : `${u.origin}${u.pathname}`;
+}
+
 function findItem(key) {
   if (items.has(key)) return items.get(key);
   const hits = [...items.values()].filter((it) => it.id.startsWith(key));
@@ -146,7 +152,7 @@ async function snapshot() {
     elements.push(...list);
   }
   const text = (await page.evaluate(() => document.body?.innerText || "").catch(() => "")).replace(/\n{2,}/g, "\n").slice(0, 2500);
-  return { url: page.url(), title: await page.title(), text, elements };
+  return { url: safeUrl(), title: await page.title(), text, elements };
 }
 
 function locator(ref) {
@@ -164,7 +170,7 @@ const handlers = {
   async goto({ url }) {
     await page.goto(url, { waitUntil: "domcontentloaded", timeout: 45000 });
     await page.waitForTimeout(1500);
-    return { url: page.url(), title: await page.title() };
+    return { url: safeUrl(), title: await page.title() };
   },
   snap: snapshot,
   // ブラウザの確認ダイアログは既定で閉じられるので、承諾は命令で明示したときの 1 回だけにする
@@ -180,7 +186,7 @@ const handlers = {
     } finally {
       page.off("dialog", accept);
     }
-    return { url: page.url(), title: await page.title() };
+    return { url: safeUrl(), title: await page.title() };
   },
   async fill({ ref, text }) {
     await locator(ref).fill(text);
@@ -197,7 +203,7 @@ const handlers = {
   async press({ key }) {
     await page.keyboard.press(key);
     await page.waitForTimeout(1500);
-    return { url: page.url(), title: await page.title() };
+    return { url: safeUrl(), title: await page.title() };
   },
   async gen({ item, length, symbols }) {
     const it = findItem(item);
@@ -240,7 +246,7 @@ const handlers = {
   },
   async wait({ ms }) {
     await page.waitForTimeout(ms ?? 2000);
-    return { url: page.url(), title: await page.title() };
+    return { url: safeUrl(), title: await page.title() };
   },
   async ask({ ref, prompt, hidden = true }) {
     const value = await promptTTY(`${prompt}: `, hidden);
