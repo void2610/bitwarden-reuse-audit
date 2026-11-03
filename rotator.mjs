@@ -123,7 +123,10 @@ async function snapshot() {
           const s = getComputedStyle(el);
           return r.width > 0 && r.height > 0 && s.visibility !== "hidden" && s.display !== "none";
         };
-        for (const el of document.querySelectorAll("input, button, a, select, textarea, summary, [role=button]")) {
+        // Web Components の中のフォームも拾うため、開いている Shadow DOM までたどる
+        const SEL = "input, button, a, select, textarea, summary, [role=button]";
+        const collect = (root) => [...root.querySelectorAll(SEL), ...[...root.querySelectorAll("*")].filter((e) => e.shadowRoot).flatMap((e) => collect(e.shadowRoot))];
+        for (const el of collect(document)) {
           if (!vis(el)) continue;
           const tag = el.tagName.toLowerCase();
           const type = (el.getAttribute("type") || "").toLowerCase();
