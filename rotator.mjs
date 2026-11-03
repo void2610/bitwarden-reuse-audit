@@ -56,6 +56,13 @@ function safeUrl() {
   return u.origin === "null" ? `${u.protocol}${u.pathname}` : `${u.origin}${u.pathname}`;
 }
 
+// まとめて流し込むと keyup 等を待つ画面でボタンが有効にならないので、type 指定時は 1 文字ずつ打つ
+async function enter(loc, value, type) {
+  if (!type) return loc.fill(value);
+  await loc.fill("");
+  await loc.pressSequentially(value, { delay: 20 });
+}
+
 function findItem(key) {
   if (items.has(key)) return items.get(key);
   const hits = [...items.values()].filter((it) => it.id.startsWith(key));
@@ -181,23 +188,24 @@ const handlers = {
       // div で作られたメニュー等は番号が振られないので、文言か座標でも押せるようにする
       if (ref) await locator(ref).click({ timeout: 15000 });
       else if (text) await page.getByText(text, { exact: true }).first().click({ timeout: 15000 });
-      else await page.mouse.click(x, y);
+      else if (Number.isFinite(x) && Number.isFinite(y)) await page.mouse.click(x, y);
+      else throw new Error("click needs ref, text, or x and y");
       await page.waitForTimeout(1500);
     } finally {
       page.off("dialog", accept);
     }
     return { url: safeUrl(), title: await page.title() };
   },
-  async fill({ ref, text }) {
-    await locator(ref).fill(text);
+  async fill({ ref, text, type }) {
+    await enter(locator(ref), text, type);
     return { ok: true };
   },
-  async secret({ ref, item, field }) {
+  async secret({ ref, item, field, type }) {
     const it = findItem(item);
     const value =
       field === "username" ? it.login.username : field === "password" ? it.login.password : field === "new" ? pending.get(it.id) : null;
     if (!value) throw new Error(`no ${field} for ${it.name}`);
-    await locator(ref).fill(value);
+    await enter(locator(ref), value, type);
     return { ok: true, item: it.name, field };
   },
   async press({ key }) {
