@@ -95,7 +95,7 @@ node rotator.mjs
 |---|---|---|
 | `goto` | `{"cmd":"goto","url":"https://example.com/login"}` | ページを開く |
 | `snap` | `{"cmd":"snap"}` | 入力欄やボタンの一覧を返す (入力値は返さない) |
-| `click` | `{"cmd":"click","ref":"f0e12"}` | 要素を押す (`"dialog":"accept"` を付けると、押した後の確認ダイアログを承諾する) |
+| `click` | `{"cmd":"click","ref":"f0e12"}` | 要素を押す。`ref` の代わりに `"text":"編集する"` や `"x":1227,"y":25` でも押せる (`"dialog":"accept"` を付けると、押した後の確認ダイアログを承諾する) |
 | `fill` | `{"cmd":"fill","ref":"f0e1","text":"..."}` | 秘密ではない文字を入れる |
 | `secret` | `{"cmd":"secret","ref":"f0e10","item":"a95ebfba","field":"password"}` | 保管庫の値を入れる (`username` / `password` / `new`) |
 | `gen` | `{"cmd":"gen","item":"a95ebfba","length":20}` | 新しいパスワードを生成して保留する |

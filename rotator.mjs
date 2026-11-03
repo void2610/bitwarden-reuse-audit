@@ -168,11 +168,14 @@ const handlers = {
   },
   snap: snapshot,
   // ブラウザの確認ダイアログは既定で閉じられるので、承諾は命令で明示したときの 1 回だけにする
-  async click({ ref, dialog }) {
+  async click({ ref, text, x, y, dialog }) {
     const accept = (d) => d.accept();
     if (dialog === "accept") page.once("dialog", accept);
     try {
-      await locator(ref).click({ timeout: 15000 });
+      // div で作られたメニュー等は番号が振られないので、文言か座標でも押せるようにする
+      if (ref) await locator(ref).click({ timeout: 15000 });
+      else if (text) await page.getByText(text, { exact: true }).first().click({ timeout: 15000 });
+      else await page.mouse.click(x, y);
       await page.waitForTimeout(1500);
     } finally {
       page.off("dialog", accept);
